@@ -12,17 +12,17 @@ export const makeMemoryFinishSaleUsecase = (): MemoryFinishSale => {
   const logger = new ConsoleLogRepository()
   const stockProcessingRepository = new HttpStockRepository({
     httpClient,
-    baseUrl: env.baseUrl,
+    baseUrl: env.stockBaseUrl,
     logger
   })
   const saveSale = new MemorySaveSaleRepository(logger)
   const paymentRepository = new HttpPaymentRepository({
-    baseUrl: env.baseUrl,
+    baseUrl: env.paymentBaseUrl,
     httpClient,
     logger
   })
   const saleDispatcher = new HttpSaleDispatcherRepository({
-    baseUrl: env.baseUrl,
+    baseUrl: env.dispatchBaseUrl,
     httpClient,
     logger
   })
