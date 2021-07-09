@@ -13,5 +13,6 @@ export class RandomProcessingPayment implements ProcessingPayment {
       await this.logger.log({ message: 'Payment error.' })
       throw new Error('Payment error.')
     }
+    await this.logger.log({ message: 'Payment processed.' })
   }
 }

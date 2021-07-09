@@ -13,5 +13,6 @@ export class RandomProcessingDispatch implements ProcessingDispatch {
       await this.logger.log({ message: 'Dispatch error.' })
       throw new Error('Dispatch error.')
     }
+    await this.logger.log({ message: 'Dispatch processed.' })
   }
 }
