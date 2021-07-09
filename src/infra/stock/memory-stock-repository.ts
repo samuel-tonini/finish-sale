@@ -1,4 +1,4 @@
-import { StockAfterProcessingRepository, StockBeforeProcessingRepository, StockCancelProcessingRepository, StockCheckQuantityRepository } from '@/data/protocols'
+import { StockAfterProcessingRepository, StockBeforeProcessingRepository, StockCancelProcessingRepository, StockCheckQuantityRepository, LogRepository } from '@/data/protocols'
 import { Item } from '@/domain/models'
 
 let stock: any = {}
@@ -17,6 +17,10 @@ let lastPendingStock = 0
  */
 
 export class MemoryStockRepository implements StockAfterProcessingRepository, StockBeforeProcessingRepository, StockCancelProcessingRepository, StockCheckQuantityRepository {
+  constructor (private readonly logger: LogRepository) {
+    Object.freeze(this)
+  }
+
   async beforeProcess (items: Item[]): Promise<number> {
     lastPendingStock = lastPendingStock + 1
     for (const item of items) {
@@ -33,6 +37,7 @@ export class MemoryStockRepository implements StockAfterProcessingRepository, St
         }
       }
     }
+    await this.logger.log({ message: 'Current stock', stack: JSON.stringify(stock, null, 2) })
     return lastPendingStock
   }
 
@@ -53,6 +58,7 @@ export class MemoryStockRepository implements StockAfterProcessingRepository, St
         }
       }
     }
+    await this.logger.log({ message: 'Current stock', stack: JSON.stringify(stock, null, 2) })
   }
 
   async cancelProcess (id: number): Promise<void> {
@@ -72,11 +78,13 @@ export class MemoryStockRepository implements StockAfterProcessingRepository, St
         }
       }
     }
+    await this.logger.log({ message: 'Current stock', stack: JSON.stringify(stock, null, 2) })
   }
 
   async checkQuantity (items: Item[]): Promise<void> {
     for (const item of items) {
       if (((stock?.[item.sku]?.quantity ?? 5.0) - (stock?.[item.sku]?.reserved ?? 0.0)) < item.quantity) {
+        await this.logger.log({ message: `Invalid quantity sku: ${item.sku}.` })
         throw new Error(`Invalid quantity sku: ${item.sku}.`)
       }
     }

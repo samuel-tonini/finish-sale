@@ -5,21 +5,26 @@ import { MemorySaveSaleRepository } from '@/infra/sale'
 import { HttpPaymentRepository } from '@/infra/payment'
 import env from '@/main/config/env'
 import { HttpSaleDispatcherRepository } from '@/infra/dispatcher'
+import { ConsoleLogRepository } from '@/infra/log'
 
 export const makeMemoryFinishSaleUsecase = (): MemoryFinishSale => {
   const httpClient = new NodeFetchAdapter()
+  const logger = new ConsoleLogRepository()
   const stockProcessingRepository = new HttpStockRepository({
     httpClient,
-    baseUrl: env.baseUrl
+    baseUrl: env.baseUrl,
+    logger
   })
-  const saveSale = new MemorySaveSaleRepository()
+  const saveSale = new MemorySaveSaleRepository(logger)
   const paymentRepository = new HttpPaymentRepository({
     baseUrl: env.baseUrl,
-    httpClient
+    httpClient,
+    logger
   })
   const saleDispatcher = new HttpSaleDispatcherRepository({
     baseUrl: env.baseUrl,
-    httpClient
+    httpClient,
+    logger
   })
   return new MemoryFinishSale({
     stockAfterProcessing: stockProcessingRepository,

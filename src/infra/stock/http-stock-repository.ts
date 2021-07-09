@@ -1,14 +1,16 @@
-import { StockAfterProcessingRepository, StockBeforeProcessingRepository, StockCancelProcessingRepository } from '@/data/protocols'
+import { StockAfterProcessingRepository, StockBeforeProcessingRepository, StockCancelProcessingRepository, LogRepository } from '@/data/protocols'
 import { Item } from '@/domain/models'
 import { HttpClient, HttpMethod } from '@/infra/http'
 
 export class HttpStockRepository implements StockAfterProcessingRepository, StockBeforeProcessingRepository, StockCancelProcessingRepository {
   private readonly httpClient: HttpClient
   private readonly baseUrl: string
+  private readonly logger: LogRepository
 
   constructor (params: StockRepository.ConstrutorParams) {
     this.httpClient = params.httpClient
     this.baseUrl = params.baseUrl
+    this.logger = params.logger
     Object.freeze(this)
   }
 
@@ -18,6 +20,7 @@ export class HttpStockRepository implements StockAfterProcessingRepository, Stoc
       url: `${this.baseUrl}/stock/after/${id}`
     })
     if (response.statusCode > 299) {
+      await this.logger.log({ message: `Stock after processing error status: ${response.statusCode}` })
       throw new Error(`Stock after processing error status: ${response.statusCode}`)
     }
   }
@@ -29,6 +32,7 @@ export class HttpStockRepository implements StockAfterProcessingRepository, Stoc
       body: { items }
     })
     if (response.statusCode > 299) {
+      await this.logger.log({ message: `Stock before processing error status: ${response.statusCode}` })
       throw new Error(`Stock before processing error status: ${response.statusCode}`)
     }
     if (response?.data?.processingId) {
@@ -43,6 +47,7 @@ export class HttpStockRepository implements StockAfterProcessingRepository, Stoc
       url: `${this.baseUrl}/stock/cancel/${id}`
     })
     if (response.statusCode > 299) {
+      await this.logger.log({ message: `Stock cancel processing error status: ${response.statusCode}` })
       throw new Error(`Stock cancel processing error status: ${response.statusCode}`)
     }
   }
@@ -52,5 +57,6 @@ export namespace StockRepository {
   export type ConstrutorParams = {
     httpClient: HttpClient
     baseUrl: string
+    logger: LogRepository
   }
 }
