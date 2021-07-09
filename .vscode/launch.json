@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "command": "npm run debug",
+      "name": "Run npm debug",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "command": "npm run debug:production",
+      "name": "Run npm debug:production",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "name": "Attach to Node",
+      "port": 9229,
+      "request": "attach",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "pwa-node"
+    }
+  ]
+}
